@@ -45,6 +45,8 @@ macro(extensionsystem_add_library _target)
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
     )
 
+    target_compile_features(${_target} PUBLIC cxx_std_11)
+
     add_library(${EXTENSIONSYSTEM_INSTALL_NAME}::${_target} ALIAS ${_target})
 
     if(EXTENSIONSYSTEM_INSTALL)
