@@ -7,7 +7,7 @@ set(EXTENSIONSYSTEM_PROJECT_COPYRIGHT "Copyright The Qt Company Ltd.")
 macro(extensionsystem_add_library _target)
     set(options AUTOGEN)
     set(oneValueArgs)
-    set(multiValueArgs EXPORT_OPTIONS)
+    set(multiValueArgs EXPORT_OPTIONS INSTALL_DIRS)
     cmake_parse_arguments(FUNC "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(FUNC_AUTOGEN)
@@ -61,10 +61,15 @@ macro(extensionsystem_add_library _target)
 
         # Install headers
         get_filename_component(_dir_name ${CMAKE_CURRENT_LIST_DIR} NAME)
-        file(GLOB _headers *.h)
-        install(FILES ${_headers}
-            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${EXTENSIONSYSTEM_INSTALL_NAME}/${_dir_name}
-        )
+
+        set(_dirs . ${FUNC_INSTALL_DIRS})
+
+        foreach(_item IN LISTS _dirs)
+            file(GLOB _headers ${_item}/*.h)
+            install(FILES ${_headers}
+                DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${EXTENSIONSYSTEM_INSTALL_NAME}/${_dir_name}/${_item}
+            )
+        endforeach()
     endif()
 
     set_target_properties(${_target} PROPERTIES

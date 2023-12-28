@@ -39,4 +39,6 @@ extensionsystem_add_library(${PROJECT_NAME} AUTOGEN
     EXPORT_OPTIONS
         STATIC  QTCREATOR_UTILS_STATIC_LIB
         LIBRARY QTCREATOR_UTILS_LIB
+    INSTALL_DIRS
+        mimetypes theme tooltip
 )
