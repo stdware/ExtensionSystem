@@ -65,7 +65,11 @@ void AnnotatedItemDelegate::paint(QPainter *painter,
                                   const QStyleOptionViewItem &option,
                                   const QModelIndex &index) const
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItemV4 opt = option;
+#else
+    QStyleOptionViewItem opt = option;
+#endif
     initStyleOption(&opt, index);
 
     QStyle *style = QApplication::style();
@@ -88,7 +92,7 @@ void AnnotatedItemDelegate::paint(QPainter *painter,
         painter->save();
         painter->setPen(disabled.color(QPalette::WindowText));
 
-        static int extra = opt.fontMetrics.width(m_delimiter) + 10;
+        static int extra = opt.fontMetrics.horizontalAdvance(m_delimiter) + 10;
         const QPixmap &pixmap = opt.icon.pixmap(opt.decorationSize);
         const QRect &iconRect = style->itemPixmapRect(opt.rect, opt.decorationAlignment, pixmap);
         const QRect &displayRect = style->itemTextRect(opt.fontMetrics, opt.rect,
@@ -108,7 +112,11 @@ void AnnotatedItemDelegate::paint(QPainter *painter,
 QSize AnnotatedItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                                       const QModelIndex &index) const
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QStyleOptionViewItemV4 opt = option;
+#else
+    QStyleOptionViewItem opt = option;
+#endif
     initStyleOption(&opt, index);
 
     const QString &annotation = index.data(m_annotationRole).toString();

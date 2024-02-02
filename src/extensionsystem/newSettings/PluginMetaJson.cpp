@@ -56,7 +56,7 @@ bool PluginMetaJson::load() {
         auto it = objDoc.find("subdirs");
         if (it != objDoc.end() && it->isArray()) {
             auto arr = it->toArray();
-            for (const auto &item : qAsConst(arr)) {
+            for (const auto &item : std::as_const(arr)) {
                 if (item.isString()) {
                     subdirs.append(item.toString());
                 }
@@ -97,8 +97,8 @@ QString PluginMetaJson::pluginPath() const {
 
     // Split up "subdir/filename"
     const int slash = fileName.lastIndexOf(QLatin1Char('/'));
-    const QStringRef baseName = fileName.midRef(slash + 1);
-    const QStringRef basePath = isAbsolute ? QStringRef() : fileName.leftRef(slash + 1); // keep the '/'
+    const QString baseName = fileName.mid(slash + 1);
+    const QString basePath = isAbsolute ? QString() : fileName.left(slash + 1); // keep the '/'
 
     const bool debug = false;
 
@@ -109,9 +109,9 @@ QString PluginMetaJson::pluginPath() const {
         paths = QStringList(dir);
     }
 
-    for (const QString &path : qAsConst(paths)) {
-        for (const QString &prefix : qAsConst(prefixes)) {
-            for (const QString &suffix : qAsConst(suffixes)) {
+    for (const QString &path : std::as_const(paths)) {
+        for (const QString &prefix : std::as_const(prefixes)) {
+            for (const QString &suffix : std::as_const(suffixes)) {
 #ifdef Q_OS_ANDROID
                 {
                     QString pluginPath = basePath + prefix + baseName + suffix;

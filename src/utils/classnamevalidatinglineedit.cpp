@@ -34,6 +34,7 @@
 
 #include <QDebug>
 #include <QRegExp>
+#include <QRegularExpression>
 
 /*!
     \class Utils::ClassNameValidatingLineEdit
@@ -174,7 +175,7 @@ QString ClassNameValidatingLineEdit::createClassName(const QString &name)
     }
 
     // Filter out any remaining invalid characters
-    className.remove(QRegExp(QLatin1String("[^a-zA-Z0-9_]")));
+    className.remove(QRegularExpression(QLatin1String("[^a-zA-Z0-9_]")));
 
     // If the first character is numeric, prefix the name with a "_"
     if (className.at(0).isNumber()) {

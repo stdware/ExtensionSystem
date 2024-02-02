@@ -61,12 +61,21 @@ public:
     bool m_alphaAllowed;
 };
 
+static QRgb QColorDialog_getRgba(QRgb initial, bool *ok, QWidget *parent) {
+    const QColor color = QColorDialog::getColor(QColor::fromRgba(initial), parent, QString(),
+                                  QColorDialog::ShowAlphaChannel);
+    QRgb result = color.isValid() ? color.rgba() : initial;
+    if (ok)
+        *ok = color.isValid();
+    return result;
+}
+
 void QtColorButtonPrivate::slotEditColor()
 {
     QColor newColor;
     if (m_alphaAllowed) {
         bool ok;
-        const QRgb rgba = QColorDialog::getRgba(m_color.rgba(), &ok, q_ptr);
+        const QRgb rgba = QColorDialog_getRgba(m_color.rgba(), &ok, q_ptr);
         if (!ok)
             return;
         newColor = QColor::fromRgba(rgba);
@@ -248,7 +257,7 @@ void QtColorButton::mouseMoveEvent(QMouseEvent *event)
         drg->setPixmap(d_ptr->generatePixmap());
         setDown(false);
         event->accept();
-        drg->start();
+        drg->exec();
         return;
     }
 #endif

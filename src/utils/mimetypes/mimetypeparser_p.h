@@ -46,6 +46,8 @@
 // We mean it.
 //
 
+#include <QStringView>
+
 #include "mimedatabase_p.h"
 #include "mimeprovider_p.h"
 
@@ -91,7 +93,7 @@ private:
         ParseError
     };
 
-    static ParseState nextState(ParseState currentState, const QStringRef &startElement);
+    static ParseState nextState(ParseState currentState, const QStringView &startElement);
 };
 
 

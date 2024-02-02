@@ -88,26 +88,33 @@ namespace Utils {
 // A special QProcess derivative allowing for terminal control.
 class TerminalControllingProcess : public QProcess {
 public:
-    TerminalControllingProcess() : m_flags(0) {}
+    TerminalControllingProcess() : m_flags(0) {
+#ifdef Q_OS_UNIX
+    // Disable terminal by becoming a session leader.
+    if (m_flags & SynchronousProcess::UnixTerminalDisabled)
+        setChildProcessModifier([]() { setsid(); });
+#endif
+    }
 
     unsigned flags() const { return m_flags; }
     void setFlags(unsigned tc) { m_flags = tc; }
 
 protected:
-    virtual void setupChildProcess();
+    // virtual void setupChildProcess();
+    
 
 private:
     unsigned m_flags;
 };
 
-void TerminalControllingProcess::setupChildProcess()
-{
-#ifdef Q_OS_UNIX
-    // Disable terminal by becoming a session leader.
-    if (m_flags & SynchronousProcess::UnixTerminalDisabled)
-        setsid();
-#endif
-}
+// void TerminalControllingProcess::setupChildProcess()
+// {
+// #ifdef Q_OS_UNIX
+//     // Disable terminal by becoming a session leader.
+//     if (m_flags & SynchronousProcess::UnixTerminalDisabled)
+//         setsid();
+// #endif
+// }
 
 // ----------- SynchronousProcessResponse
 SynchronousProcessResponse::SynchronousProcessResponse() :
@@ -253,7 +260,7 @@ SynchronousProcess::SynchronousProcess() :
     connect(&d->m_process,
             static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
             this, &SynchronousProcess::finished);
-    connect(&d->m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error),
+    connect(&d->m_process, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::errorOccurred),
             this, &SynchronousProcess::error);
     connect(&d->m_process, &QProcess::readyReadStandardOutput,
             this, &SynchronousProcess::stdOutReady);

@@ -249,10 +249,12 @@ struct ContainerType<T_Container<T_Type>> {
 };
 
 // specialization for QStringList
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 template<>
 struct ContainerType<QStringList> : ContainerType<QList<QString>>
 {
 };
+#endif
 
 }
 

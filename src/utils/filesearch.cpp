@@ -79,7 +79,9 @@ bool openStream(const QString &filePath, QTextCodec *encoding, QTextStream *stre
         if (!file->open(QIODevice::ReadOnly))
             return false;
         stream->setDevice(file);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         stream->setCodec(encoding);
+#endif
     }
     return true;
 }

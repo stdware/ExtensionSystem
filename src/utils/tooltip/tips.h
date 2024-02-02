@@ -39,10 +39,10 @@
 #include <QVariant>
 #include <QVBoxLayout>
 
-#ifndef Q_MOC_RUN
+// #ifndef Q_MOC_RUN
 namespace Utils {
 namespace Internal {
-#endif
+// #endif
 
 // Please do not change the name of this class. Detailed comments in tooltip.h.
 class QTipLabel : public QLabel
@@ -118,9 +118,9 @@ private:
     QVBoxLayout *m_layout;
 };
 
-#ifndef Q_MOC_RUN
+// #ifndef Q_MOC_RUN
 } // namespace Internal
 } // namespace Utils
-#endif
+// #endif
 
 #endif // TIPS_H

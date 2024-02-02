@@ -41,7 +41,9 @@
 
 QT_BEGIN_NAMESPACE
 class QFileinfo;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 class QStringList;
+#endif
 QT_END_NAMESPACE
 
 namespace Utils {

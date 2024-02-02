@@ -30,6 +30,8 @@
 
 #include "environment.h"
 
+#include <algorithm>
+
 #include <QDir>
 #include <QProcessEnvironment>
 #include <QSet>
@@ -67,7 +69,7 @@ static bool sortEnvironmentItem(const EnvironmentItem &a, const EnvironmentItem 
 
 void EnvironmentItem::sort(QList<EnvironmentItem> *list)
 {
-    qSort(list->begin(), list->end(), &sortEnvironmentItem);
+    std::sort(list->begin(), list->end(), &sortEnvironmentItem);
 }
 
 QList<EnvironmentItem> EnvironmentItem::fromStringList(const QStringList &list)
@@ -302,7 +304,7 @@ FileName Environment::searchInPath(const QString &executable,
 QStringList Environment::path() const
 {
     return m_values.value(QLatin1String("PATH"))
-            .split(OsSpecificAspects(m_osType).pathListSeparator(), QString::SkipEmptyParts);
+            .split(OsSpecificAspects(m_osType).pathListSeparator(), Qt::SkipEmptyParts);
 }
 
 QString Environment::value(const QString &key) const

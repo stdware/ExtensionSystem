@@ -32,6 +32,8 @@
 
 #include "qtcassert.h"
 
+#include <algorithm>
+
 #include <QAbstractButton>
 #include <QApplication>
 #include <QContextMenuEvent>
@@ -76,7 +78,11 @@ public:
     DockWidget(QWidget *inner, FancyMainWindow *parent);
 
     bool eventFilter(QObject *, QEvent *event);
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEvent *event);
+#else
+    void enterEvent(QEnterEvent *event);
+#endif
     void leaveEvent(QEvent *event);
     void handleMouseTimeout();
     void handleToplevelChanged(bool floating);
@@ -115,7 +121,11 @@ public:
 
     QSize minimumSizeHint() const { return sizeHint(); }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEvent *event)
+#else
+    void enterEvent(QEnterEvent *event)
+#endif
     {
         if (isEnabled())
             update();
@@ -137,11 +147,15 @@ void DockWidgetTitleButton::paintEvent(QPaintEvent *)
     QPainter p(this);
 
     QStyleOptionToolButton opt;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     opt.init(this);
+#else
+    opt.initFrom(this);
+#endif
     opt.state |= QStyle::State_AutoRaise;
     opt.icon = icon();
-    opt.subControls = 0;
-    opt.activeSubControls = 0;
+    opt.subControls = {};
+    opt.activeSubControls = {};
     opt.features = QStyleOptionToolButton::None;
     opt.arrowType = Qt::NoArrow;
     int size = style()->pixelMetric(QStyle::PM_SmallIconSize, 0, this);
@@ -180,7 +194,7 @@ public:
         m_maximumActiveSize   = QSize(maxWidth, activeHeight);
 
         auto layout = new QHBoxLayout(this);
-        layout->setMargin(0);
+        layout->setContentsMargins({});
         layout->setSpacing(0);
         layout->setContentsMargins(4, 0, 0, 0);
         layout->addWidget(m_titleLabel);
@@ -192,7 +206,11 @@ public:
         setProperty("managed_titlebar", 1);
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     void enterEvent(QEvent *event)
+#else
+    void enterEvent(QEnterEvent *event)
+#endif
     {
         setActive(true);
         QWidget::enterEvent(event);
@@ -295,7 +313,11 @@ bool DockWidget::eventFilter(QObject *, QEvent *event)
     return false;
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void DockWidget::enterEvent(QEvent *event)
+#else
+void DockWidget::enterEvent(QEnterEvent *event)
+#endif
 {
     QApplication::instance()->installEventFilter(this);
     QDockWidget::enterEvent(event);
@@ -518,7 +540,7 @@ void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
             actions.append(dockwidgets.at(i)->toggleViewAction());
         }
     }
-    qSort(actions.begin(), actions.end(), actionLessThan);
+    std::sort(actions.begin(), actions.end(), actionLessThan);
     foreach (QAction *action, actions)
         menu->addAction(action);
     menu->addAction(&d->m_menuSeparator1);

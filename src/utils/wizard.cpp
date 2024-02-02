@@ -71,7 +71,7 @@ public:
         m_indicatorLabel->setFixedSize(m_indicatorPixmap.size());
         m_titleLabel = new QLabel(title, this);
         QHBoxLayout *l = new QHBoxLayout(this);
-        l->setMargin(0);
+        l->setContentsMargins({});
         l->addWidget(m_indicatorLabel);
         l->addWidget(m_titleLabel);
     }

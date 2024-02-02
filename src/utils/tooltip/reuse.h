@@ -37,10 +37,16 @@
 #include <QRect>
 #include <QWidget>
 #include <QApplication>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <QDesktopWidget>
+#else
+#include <QScreen>
+#endif
 
 namespace Utils {
 namespace Internal {
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 
 inline int screenNumber(const QPoint &pos, QWidget *w)
 {
@@ -56,6 +62,27 @@ inline QRect screenGeometry(const QPoint &pos, QWidget *w)
         return QApplication::desktop()->availableGeometry(screenNumber(pos, w));
     return QApplication::desktop()->screenGeometry(screenNumber(pos, w));
 }
+
+#else
+
+inline QScreen *screenFromPosAndWidget(const QPoint &pos, QWidget *w) {
+    QScreen *screen = QGuiApplication::screenAt(pos);
+    if (!screen && w) {
+        screen = w->screen();
+    }
+    return screen;
+}
+
+inline QRect screenGeometry(const QPoint &pos, QWidget *w)
+{
+    QScreen *screen = screenFromPosAndWidget(pos, w);
+    if (screen) {
+        return screen->geometry();
+    }
+    return {};
+}
+
+#endif
 
 } // namespace Internal
 } // namespace Utils

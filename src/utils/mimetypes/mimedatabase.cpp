@@ -49,6 +49,7 @@
 #include <QtCore/QUrl>
 #include <QtCore/QStack>
 #include <QtCore/QDebug>
+#include <QtCore/QStringList>
 
 #include <algorithm>
 #include <functional>

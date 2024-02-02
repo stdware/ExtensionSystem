@@ -116,7 +116,7 @@ PathListEditorPrivate::PathListEditorPrivate()   :
         buttonLayout(new QVBoxLayout),
         edit(new PathListPlainTextEdit)
 {
-    layout->setMargin(0);
+    layout->setContentsMargins({});
     layout->addWidget(edit);
     layout->addLayout(buttonLayout);
     buttonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored,
@@ -172,7 +172,7 @@ QStringList PathListEditor::pathList() const
     if (text.isEmpty())
         return QStringList();
     // trim each line
-    QStringList rc = text.split(QLatin1Char('\n'), QString::SkipEmptyParts);
+    QStringList rc = text.split(QLatin1Char('\n'), Qt::SkipEmptyParts);
     const QStringList::iterator end = rc.end();
     for (QStringList::iterator it = rc.begin(); it != end; ++it)
         *it = it->trimmed();
@@ -190,7 +190,7 @@ void PathListEditor::setPathList(const QString &pathString)
         clear();
     } else {
         setPathList(pathString.split(HostOsInfo::pathListSeparator(),
-                QString::SkipEmptyParts));
+                Qt::SkipEmptyParts));
     }
 }
 

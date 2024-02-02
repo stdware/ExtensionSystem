@@ -44,6 +44,7 @@
 #include <QEventLoop>
 #include <QFile>
 #include <QLibrary>
+#include <QOperatingSystemVersion>
 #include <QMetaProperty>
 #include <QSettings>
 #include <QSysInfo>
@@ -579,7 +580,7 @@ static QStringList subList(const QStringList &in, const QString &key) {
     QStringList rc;
     // Find keyword and copy arguments until end or next keyword
     const QStringList::const_iterator inEnd = in.constEnd();
-    QStringList::const_iterator it = qFind(in.constBegin(), inEnd, key);
+    QStringList::const_iterator it = std::find(in.constBegin(), inEnd, key);
     if (it != inEnd) {
         const QChar nextIndicator = QLatin1Char(':');
         for (++it; it != inEnd && !it->startsWith(nextIndicator); ++it)
@@ -1423,7 +1424,7 @@ void PluginManagerPrivate::readPluginPaths() {
                 searchPaths << subdir.absoluteFilePath();
             }
         } else if (!metaJson.subdirs.isEmpty()) {
-            for (const auto &name : qAsConst(metaJson.subdirs)) {
+            for (const auto &name : std::as_const(metaJson.subdirs)) {
                 QDir subdir(dir.absoluteFilePath(name));
                 if (subdir.exists()) {
                     searchPaths << subdir.absolutePath();
@@ -1470,7 +1471,7 @@ void PluginManagerPrivate::readPluginPaths() {
     }
     resolveDependencies();
     // ensure deterministic plugin load order by sorting
-    qSort(pluginSpecs.begin(), pluginSpecs.end(), lessThanByPluginName);
+    std::sort(pluginSpecs.begin(), pluginSpecs.end(), lessThanByPluginName);
     emit q->pluginsChanged();
 }
 
@@ -1543,7 +1544,7 @@ PluginSpec *PluginManagerPrivate::pluginByName(const QString &name) const {
 
 void PluginManagerPrivate::initProfiling() {
     if (m_profileTimer.isNull()) {
-        m_profileTimer.reset(new QTime);
+        m_profileTimer.reset(new QElapsedTimer());
         m_profileTimer->start();
         m_profileElapsedMS = 0;
         qDebug("Profiling started");
@@ -1589,9 +1590,11 @@ void PluginManagerPrivate::profilingSummary() const {
 
 static inline QString getPlatformName() {
 #if defined(Q_OS_MAC)
-    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_0) {
-        QString result = QLatin1String("OS X");
-        result += QLatin1String(" 10.") + QString::number(QSysInfo::MacintoshVersion - QSysInfo::MV_10_0);
+    QOperatingSystemVersion version = QOperatingSystemVersion::current();
+    if (version.majorVersion() >= 10) {
+        QString result = QLatin1String("macOS 10.");
+        int minorVersion = version.minorVersion();
+        result += QString::number(minorVersion);
         return result;
     } else {
         return QLatin1String("Mac OS");
@@ -1625,24 +1628,43 @@ static inline QString getPlatformName() {
     return base;
 #elif defined(Q_OS_WIN)
     QString result = QLatin1String("Windows");
-    switch (QSysInfo::WindowsVersion) {
-        case QSysInfo::WV_XP:
-            result += QLatin1String(" XP");
-            break;
-        case QSysInfo::WV_2003:
-            result += QLatin1String(" 2003");
-            break;
-        case QSysInfo::WV_VISTA:
-            result += QLatin1String(" Vista");
-            break;
-        case QSysInfo::WV_WINDOWS7:
-            result += QLatin1String(" 7");
-            break;
-        default:
-            break;
-    }
-    if (QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS8)
+    QOperatingSystemVersion version = QOperatingSystemVersion::current();
+    if (version >= QOperatingSystemVersion(QOperatingSystemVersion::Windows, 10)) {
+        result += QLatin1String(" 10");
+    } else if (version >= QOperatingSystemVersion(QOperatingSystemVersion::Windows, 8)) {
         result += QLatin1String(" 8");
+    } else if (version.majorVersion() == 6) {
+        switch (version.minorVersion()) {
+            case 3:
+                result += QLatin1String(" 8.1");
+                break;
+            case 2:
+                result += QLatin1String(" 8");
+                break;
+            case 1:
+                result += QLatin1String(" 7");
+                break;
+            case 0:
+                result += QLatin1String(" Vista");
+                break;
+            default:
+                break;
+        }
+    } else if (version.majorVersion() == 5) {
+        switch (version.minorVersion()) {
+            case 2:
+                result += QLatin1String(" XP 64-Bit Edition");
+                break;
+            case 1:
+                result += QLatin1String(" XP");
+                break;
+            case 0:
+                result += QLatin1String(" 2000");
+                break;
+            default:
+                break;
+        }
+    }
     return result;
 #endif // Q_OS_WIN
     return QLatin1String("Unknown");

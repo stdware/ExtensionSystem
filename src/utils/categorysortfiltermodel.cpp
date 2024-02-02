@@ -30,6 +30,8 @@
 
 #include "categorysortfiltermodel.h"
 
+#include <QRegExp>
+
 namespace Utils {
 
 CategorySortFilterModel::CategorySortFilterModel(QObject *parent)
@@ -42,6 +44,7 @@ bool CategorySortFilterModel::filterAcceptsRow(int source_row,
 {
     if (!source_parent.isValid()) {
         // category items should be visible if any of its children match
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         const QRegExp &regexp = filterRegExp();
         const QModelIndex &categoryIndex = sourceModel()->index(source_row, 0, source_parent);
         if (regexp.indexIn(sourceModel()->data(categoryIndex, filterRole()).toString()) != -1)
@@ -57,6 +60,24 @@ bool CategorySortFilterModel::filterAcceptsRow(int source_row,
             }
         }
         return false;
+#else
+        const QRegularExpression &regexp = filterRegularExpression();
+        const QModelIndex &categoryIndex = sourceModel()->index(source_row, 0, source_parent);
+        if (regexp.match(sourceModel()->data(categoryIndex, filterRole()).toString()).hasMatch())
+            return true;
+
+        const int rowCount = sourceModel()->rowCount(categoryIndex);
+        const int columnCount = sourceModel()->columnCount(categoryIndex);
+        for (int row = 0; row < rowCount; ++row) {
+            for (int column = 0; column < columnCount; ++column) {
+                if (regexp.match(sourceModel()->data(
+                                    sourceModel()->index(row, column, categoryIndex),
+                                    filterRole()).toString()).hasMatch())
+                    return true;
+            }
+        }
+        return false;
+#endif
     }
     return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 }

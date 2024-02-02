@@ -40,6 +40,7 @@
 #include <QTextStream>
 #include <QRegExp>
 #include <QRect>
+#include <QStringRef>
 
 #include <utils/qtcassert.h>
 
@@ -47,7 +48,7 @@
 static QString rectangleToString(const QRect &r)
 {
     QString result;
-    QTextStream(&result) << r.width() << 'x' << r.height() << forcesign << r.x() << r.y();
+    QTextStream(&result) << r.width() << 'x' << r.height() << Qt::forcesign << r.x() << r.y();
     return result;
 }
 
@@ -195,12 +196,18 @@ private:
                    SimpleValueElement, ListValueElement, MapValueElement, UnknownElement };
 
     Element element(const QStringRef &r) const;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    Element element(const QStringView &r) const;
+#endif
     static inline bool isValueElement(Element e)
         { return e == SimpleValueElement || e == ListValueElement || e == MapValueElement; }
     QVariant readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttributes &attributes) const;
 
     bool handleStartElement(QXmlStreamReader &r);
     bool handleEndElement(const QStringRef &name);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    bool handleEndElement(const QStringView &name);
+#endif
 
     static QString formatWarning(const QXmlStreamReader &r, const QString &message);
 
@@ -240,7 +247,7 @@ QVariantMap ParseContext::parse(QFile &file)
 
 bool ParseContext::handleStartElement(QXmlStreamReader &r)
 {
-    const QStringRef name = r.name();
+    const auto name = r.name();
     const Element e = element(name);
     if (e == VariableElement) {
         m_currentVariableName = r.readElementText();
@@ -292,6 +299,25 @@ bool ParseContext::handleEndElement(const QStringRef &name)
     return e == QtCreatorElement;
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+bool ParseContext::handleEndElement(const QStringView &name)
+{
+    const Element e = element(name);
+    if (ParseContext::isValueElement(e)) {
+        QTC_ASSERT(!m_valueStack.isEmpty(), return true);
+        const ParseValueStackEntry top = m_valueStack.pop();
+        if (m_valueStack.isEmpty()) { // Last element? -> Done with that variable.
+            QTC_ASSERT(!m_currentVariableName.isEmpty(), return true);
+            m_result.insert(m_currentVariableName, top.value());
+            m_currentVariableName.clear();
+            return false;
+        }
+        m_valueStack.top().addChild(top.key, top.value());
+    }
+    return e == QtCreatorElement;
+}
+#endif
+
 QString ParseContext::formatWarning(const QXmlStreamReader &r, const QString &message)
 {
     QString result = QLatin1String("Warning reading ");
@@ -321,10 +347,29 @@ ParseContext::Element ParseContext::element(const QStringRef &r) const
     return UnknownElement;
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+ParseContext::Element ParseContext::element(const QStringView &r) const
+{
+    if (r == valueElement)
+        return SimpleValueElement;
+    if (r == valueListElement)
+        return ListValueElement;
+    if (r == valueMapElement)
+        return MapValueElement;
+    if (r == qtCreatorElement)
+        return QtCreatorElement;
+    if (r == dataElement)
+        return DataElement;
+    if (r == variableElement)
+        return VariableElement;
+    return UnknownElement;
+}
+#endif
+
 QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttributes &attributes) const
 {
     // Simple value
-    const QStringRef type = attributes.value(typeAttribute);
+    const auto type = attributes.value(typeAttribute);
     const QString text = r.readElementText();
     if (type == QLatin1String("QChar")) { // Workaround: QTBUG-12345
         QTC_ASSERT(text.size() == 1, return QVariant());

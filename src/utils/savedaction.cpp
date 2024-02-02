@@ -36,6 +36,7 @@
 
 #include <QDebug>
 #include <QSettings>
+#include <QActionGroup>
 
 #include <QCheckBox>
 #include <QGroupBox>

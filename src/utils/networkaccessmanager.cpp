@@ -33,6 +33,7 @@
 #include <QCoreApplication>
 #include <QLocale>
 #include <QNetworkReply>
+#include <QOperatingSystemVersion>
 
 #ifdef Q_OS_UNIX
 #include <sys/utsname.h>
@@ -73,27 +74,53 @@ static const QString getOsString()
 {
     QString osString;
 #if defined(Q_OS_WIN)
-    switch (QSysInfo::WindowsVersion) {
-    case (QSysInfo::WV_4_0):
-        osString += QLatin1String("WinNT4.0");
+    // switch (QSysInfo::WindowsVersion) {
+    // case (QSysInfo::WV_4_0):
+    //     osString += QLatin1String("WinNT4.0");
+    //     break;
+    // case (QSysInfo::WV_5_0):
+    //     osString += QLatin1String("Windows NT 5.0");
+    //     break;
+    // case (QSysInfo::WV_5_1):
+    //     osString += QLatin1String("Windows NT 5.1");
+    //     break;
+    // case (QSysInfo::WV_5_2):
+    //     osString += QLatin1String("Windows NT 5.2");
+    //     break;
+    // case (QSysInfo::WV_6_0):
+    //     osString += QLatin1String("Windows NT 6.0");
+    //     break;
+    // case (QSysInfo::WV_6_1):
+    //     osString += QLatin1String("Windows NT 6.1");
+    //     break;
+    // default:
+    //     osString += QLatin1String("Windows NT (Unknown)");
+    //     break;
+    // }
+    auto osVersion = QOperatingSystemVersion::current();
+    switch (osVersion.majorVersion()) {
+    case 10:
+        osString += QLatin1String("Windows 10");
         break;
-    case (QSysInfo::WV_5_0):
-        osString += QLatin1String("Windows NT 5.0");
+    case 6:
+        switch (osVersion.minorVersion()) {
+        case 3:
+            osString += QLatin1String("Windows 8.1");
+            break;
+        case 2:
+            osString += QLatin1String("Windows 8");
+            break;
+        case 1:
+            osString += QLatin1String("Windows 7");
+            break;
+        case 0:
+            osString += QLatin1String("Windows Vista");
+            break;
+        }
         break;
-    case (QSysInfo::WV_5_1):
-        osString += QLatin1String("Windows NT 5.1");
-        break;
-    case (QSysInfo::WV_5_2):
-        osString += QLatin1String("Windows NT 5.2");
-        break;
-    case (QSysInfo::WV_6_0):
-        osString += QLatin1String("Windows NT 6.0");
-        break;
-    case (QSysInfo::WV_6_1):
-        osString += QLatin1String("Windows NT 6.1");
-        break;
+    // Add more cases as needed
     default:
-        osString += QLatin1String("Windows NT (Unknown)");
+        osString += QLatin1String("Windows (Unknown)");
         break;
     }
 #elif defined (Q_OS_MAC)

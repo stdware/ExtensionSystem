@@ -36,6 +36,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QProcess>
+#include <QRegExp>
 
 #ifdef Q_OS_WIN
 #include <QLibrary>

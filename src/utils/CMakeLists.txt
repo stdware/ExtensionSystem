@@ -30,6 +30,12 @@ if(EXTENSIONSYSTEM_ENABLE_QML)
     list(APPEND _qt_modules Qml)
 endif()
 
+qm_find_qt(Core) 
+
+if (QT_VERSION_MAJOR GREATER_EQUAL 6)
+    list(APPEND _qt_modules Core5Compat)
+endif()
+
 extensionsystem_add_library(${PROJECT_NAME} AUTOGEN
     SOURCES ${_src}
     LINKS ${_qt_libs}

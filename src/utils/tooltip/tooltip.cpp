@@ -234,12 +234,7 @@ void ToolTip::showInternal(const QPoint &pos, const QVariant &content,
                            int typeId, QWidget *w, const QString &helpId, const QRect &rect)
 {
     if (acceptShow(content, typeId, pos, w, helpId, rect)) {
-        QWidget *target = 0;
-        if (HostOsInfo::isWindowsHost())
-            target = QApplication::desktop()->screen(Internal::screenNumber(pos, w));
-        else
-            target = w;
-
+        QWidget *target = w;
         switch (typeId) {
             case ColorContent:
                 m_tip = new ColorTip(target);

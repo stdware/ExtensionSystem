@@ -41,6 +41,8 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMessageBox>
+#include <QRegExp>
+#include <QRegularExpression>
 #include <QTimer>
 #include <QUrl>
 
@@ -252,10 +254,10 @@ QString FileUtils::shortNativePath(const FileName &path)
 QString FileUtils::fileSystemFriendlyName(const QString &name)
 {
     QString result = name;
-    result.replace(QRegExp(QLatin1String("\\W")), QLatin1String("_"));
-    result.replace(QRegExp(QLatin1String("_+")), QLatin1String("_")); // compact _
-    result.remove(QRegExp(QLatin1String("^_*"))); // remove leading _
-    result.remove(QRegExp(QLatin1String("_+$"))); // remove trailing _
+    result.replace(QRegularExpression(QLatin1String("\\W")), QLatin1String("_"));
+    result.replace(QRegularExpression(QLatin1String("_+")), QLatin1String("_")); // compact _
+    result.remove(QRegularExpression(QLatin1String("^_*"))); // remove leading _
+    result.remove(QRegularExpression(QLatin1String("_+$"))); // remove trailing _
     if (result.isEmpty())
         result = QLatin1String("unknown");
     return result;

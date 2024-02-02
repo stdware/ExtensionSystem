@@ -34,12 +34,15 @@
 #include "utils_global.h"
 
 #include <QObject>
+#include <QTextCodec>
 
 #include <functional>
 
 QT_BEGIN_NAMESPACE
 class QMutex;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 class QStringList;
+#endif
 class QVariant;
 class QProcessEnvironment;
 template <typename T>

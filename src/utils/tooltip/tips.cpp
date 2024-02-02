@@ -191,7 +191,11 @@ void TextTip::paintEvent(QPaintEvent *event)
 {
     QStylePainter p(this);
     QStyleOptionFrame opt;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     opt.init(this);
+#else
+    opt.initFrom(this);
+#endif
     p.drawPrimitive(QStyle::PE_PanelTipLabel, opt);
     p.end();
 
@@ -202,7 +206,11 @@ void TextTip::resizeEvent(QResizeEvent *event)
 {
     QStyleHintReturnMask frameMask;
     QStyleOption option;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     option.init(this);
+#else
+    option.initFrom(this);
+#endif
     if (style()->styleHint(QStyle::SH_ToolTip_Mask, &option, this, &frameMask))
         setMask(frameMask.region);
 
@@ -268,7 +276,7 @@ bool WidgetTip::equals(int typeId, const QVariant &other, const QString &otherHe
 }
 
 // need to include it here to force it to be inside the namespaces
-#include "moc_tips.cpp"
+// #include "moc_tips.cpp"
 
 } // namespace Internal
 } // namespace Utils

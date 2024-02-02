@@ -928,7 +928,7 @@ bool TreeModel::hasChildren(const QModelIndex &idx) const
 Qt::ItemFlags TreeModel::flags(const QModelIndex &idx) const
 {
     if (!idx.isValid())
-        return 0;
+        return {};
     TreeItem *item = itemForIndex(idx);
     return item ? item->flags(idx.column())
                 : (Qt::ItemIsEnabled|Qt::ItemIsSelectable);
