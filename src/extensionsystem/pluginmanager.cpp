@@ -1424,7 +1424,7 @@ void PluginManagerPrivate::readPluginPaths() {
                 searchPaths << subdir.absoluteFilePath();
             }
         } else if (!metaJson.subdirs.isEmpty()) {
-            for (const auto &name : std::as_const(metaJson.subdirs)) {
+            for (const auto &name : qAsConst(metaJson.subdirs)) {
                 QDir subdir(dir.absoluteFilePath(name));
                 if (subdir.exists()) {
                     searchPaths << subdir.absolutePath();

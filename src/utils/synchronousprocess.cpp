@@ -89,10 +89,12 @@ namespace Utils {
 class TerminalControllingProcess : public QProcess {
 public:
     TerminalControllingProcess() : m_flags(0) {
-#ifdef Q_OS_UNIX
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#  ifdef Q_OS_UNIX
     // Disable terminal by becoming a session leader.
     if (m_flags & SynchronousProcess::UnixTerminalDisabled)
         setChildProcessModifier([]() { setsid(); });
+#  endif
 #endif
     }
 
@@ -100,21 +102,24 @@ public:
     void setFlags(unsigned tc) { m_flags = tc; }
 
 protected:
-    // virtual void setupChildProcess();
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    void setupChildProcess() override;
+#endif
     
-
 private:
     unsigned m_flags;
 };
 
-// void TerminalControllingProcess::setupChildProcess()
-// {
-// #ifdef Q_OS_UNIX
-//     // Disable terminal by becoming a session leader.
-//     if (m_flags & SynchronousProcess::UnixTerminalDisabled)
-//         setsid();
-// #endif
-// }
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+void TerminalControllingProcess::setupChildProcess()
+{
+#ifdef Q_OS_UNIX
+    // Disable terminal by becoming a session leader.
+    if (m_flags & SynchronousProcess::UnixTerminalDisabled)
+        setsid();
+#endif
+}
+#endif
 
 // ----------- SynchronousProcessResponse
 SynchronousProcessResponse::SynchronousProcessResponse() :
