@@ -33,6 +33,8 @@
 
 #include "utils_global.h"
 
+#include <limits>
+
 #include <qbytearray.h>
 #include <qendian.h>
 #include <qfile.h>

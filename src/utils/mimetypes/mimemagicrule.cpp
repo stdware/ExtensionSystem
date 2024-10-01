@@ -34,6 +34,8 @@
 
 #include "mimemagicrule_p.h"
 
+#include <limits>
+
 #include <QtCore/QList>
 #include <QtCore/QRegularExpression>
 #include <QtCore/QDebug>
