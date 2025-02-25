@@ -74,7 +74,9 @@ public:
     QPluginLoader loader;
 
     // Begin OpenVPI patch
+    QJsonObject metaData;
     QString displayName;
+    // End
 
     QString name;
     QString version;

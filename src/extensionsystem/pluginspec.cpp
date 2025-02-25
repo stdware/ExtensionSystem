@@ -182,9 +182,15 @@ PluginSpec::~PluginSpec() {
     d = 0;
 }
 
+// Begin OpenVPI patch
+QJsonObject ExtensionSystem::PluginSpec::metadata() const {
+    return d->metaData;
+}
+
 QString PluginSpec::displayName() const {
     return d->displayName.isEmpty() ? d->name : d->displayName;
 }
+// End
 
 /*!
     The plugin name. This is valid after the PluginSpec::Read state is reached.
@@ -603,6 +609,7 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &metaData) {
     if (!value.isObject())
         return reportError(tr("Plugin meta data not found"));
     QJsonObject pluginInfo = value.toObject();
+    this->metaData = pluginInfo;
 
     // Begin OpenVPI patch
     value = pluginInfo.value(QLatin1String(PLUGIN_DISPLAY_NAME));

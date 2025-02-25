@@ -85,7 +85,8 @@ namespace ExtensionSystem {
 
         ~PluginSpec();
 
-        // Begin OpenVPI patch;
+        // Begin OpenVPI patch
+        QJsonObject metadata() const;
         QString displayName() const;
         // End
 
